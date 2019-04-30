@@ -1,7 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { ThemeProvider } from 'styled-components'
-import { Reset } from 'styled-reset'
 import { THEME, GlobalStyles } from '../src/modules/styles'
 import App from './App'
 import * as serviceWorker from './serviceWorker'
@@ -9,7 +8,6 @@ import * as serviceWorker from './serviceWorker'
 ReactDOM.render(
   <ThemeProvider theme={THEME}>
     <React.Fragment>
-      <Reset />
       <GlobalStyles />
       <App />
     </React.Fragment>
