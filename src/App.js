@@ -1,5 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
+import { connect } from 'react-redux'
+import * as walletsActions from './redux/actions/wallets'
 import { Grid, Segment, Header, Divider, Button } from 'semantic-ui-react'
 
 const SegmentStyled = styled(Segment)`
@@ -10,38 +12,62 @@ const Amount = styled.span`
   font-size: 15px;
 `
 
-function App() {
-  return (<Grid columns="equal" container>
-    <Grid.Row>
-      <Grid.Column>
-        <Divider />
-        <Header as="h1" color="teal" floated="right">20.000.00 USD</Header>
-      </Grid.Column>
-    </Grid.Row>
-  <Grid.Row>
-    <Grid.Column>
-      <SegmentStyled raised color='red'>
-        <Header as="h4" color="red">GBP Wallet</Header>
-        <p><Amount>1.000.00</Amount> GBP</p>
-        <div><Button basic color="blue">Exchange</Button></div>
-      </SegmentStyled>
-    </Grid.Column>
-    <Grid.Column>
-      <SegmentStyled raised color='violet'>
-        <Header as="h4" color="violet">USD Wallet</Header>
-        <p><Amount>1.000.00</Amount> USD</p>
-        <div><Button basic color="blue">Exchange</Button></div>
-      </SegmentStyled>
-    </Grid.Column>
-    <Grid.Column>
-      <SegmentStyled raised color='green'>
-        <Header as="h4" color="green">BRL Wallet</Header>
-        <p><Amount>1.000.00</Amount> BRL</p>
-        <div><Button basic color="blue">Exchange</Button></div>
-      </SegmentStyled>
-    </Grid.Column>
-  </Grid.Row>
-</Grid>)
+class App extends React.Component {
+  componentDidMount() {
+    const { getAllWallets } = this.props
+    getAllWallets()
+  }
+
+  HandleDeposit = currency => () => {
+    this.props.deposit({
+      amount: 10,
+      currency,
+    })
+  }
+
+  render() {
+    const { wallets } = this.props
+
+    return (<Grid columns="equal" container>
+      <Grid.Row>
+        <Grid.Column>
+          <Divider />
+          <Button basic inverted>Change default currency</Button>
+          <Header as="h1" color="teal" floated="right">20.000.00 USD</Header>
+        </Grid.Column>
+      </Grid.Row>
+      <Grid.Row>
+        {wallets.map(currency => (
+          <Grid.Column key={currency.currency}>
+            <SegmentStyled raised color={currency.color}>
+              <Header as="h4" color={currency.color}>{currency.currency} Wallet</Header>
+              <p><Amount>{currency.amount}</Amount> {currency.currency}</p>
+              <div>
+                <Button basic color="blue">Exchange</Button>
+                <Button basic color="green" onClick={this.HandleDeposit(currency.currency)}>Deposit</Button>
+              </div>
+            </SegmentStyled>
+          </Grid.Column>
+        ))}
+      </Grid.Row>
+      <Grid.Row>
+        <Grid.Column>
+          footer
+        </Grid.Column>
+      </Grid.Row>
+  </Grid>)
+  }
 }
 
-export default App;
+const mapStateToProps = state => ({
+  wallets: state.wallets.wallets,
+  isLoading: state.wallets.isLoading,
+  isError: state.wallets.isError,
+})
+
+const mapDispatchToProps = {
+  getAllWallets: walletsActions.getAll,
+  deposit: walletsActions.deposit,
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App)
