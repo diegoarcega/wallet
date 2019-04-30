@@ -13,12 +13,15 @@ const INITIAL_STATE = {
 
 export default (state = INITIAL_STATE, action) => {
   switch (action.type) {
+    // wallets
     case walletTypes.GET_ALL_REQUESTED:
       return { ...state, isFetching: true, isError: false }
     case walletTypes.GET_ALL_SUCCESS:
       return { ...state, wallets: action.payload, isFetching: false }
     case walletTypes.GET_ALL_FAILURE:
       return { ...state, isError: true, isFetching: false }
+
+    // deposit
     case walletTypes.DEPOSIT_REQUESTED:
       return { ...state, isError: false, isDepositing: true }
     case walletTypes.DEPOSIT_SUCCESS:
@@ -34,6 +37,24 @@ export default (state = INITIAL_STATE, action) => {
       }
     case walletTypes.DEPOSIT_FAILURE:
       return { ...state, isError: true, isDepositing: false }
+
+    // exchange
+    case walletTypes.EXCHANGE_REQUESTED:
+      return { ...state }
+    case walletTypes.EXCHANGE_SUCCESS:
+      return {
+        ...state,
+        wallets: state.wallets.reduce((accumulator, item) => {
+          if (item.currency === action.payload.currencyFrom) {
+            item.amount -= action.payload.amount
+          }
+
+          if (item.currency === action.payload.currencyTo) {
+            item.amount = action.payload.amountTo
+          }
+          return [...accumulator, item]
+        }, [])
+      }
     default:
       return state
   }

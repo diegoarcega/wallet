@@ -10,13 +10,22 @@ function* getAll() {
 function* deposit(action) {
   const { amount, currency, callback } = action.payload
   const response = yield call(WalletsApi.deposit, { amount, currency })
-  callback()
+  callback && callback()
   yield put({ type: walletTypes.DEPOSIT_SUCCESS, payload: response })
+}
+
+function* exchange(action) {
+  const { amount, currencyFrom, currencyTo, callback } = action.payload
+  const response = yield call(WalletsApi.exchange, { currencyFrom, currencyTo, amount })
+  console.log({ response })
+  callback && callback()
+  yield put({ type: walletTypes.EXCHANGE_SUCCESS, payload: response })
 }
 
 export function* walletsWatcher() {
   yield all([
     yield takeEvery(walletTypes.GET_ALL_REQUESTED, getAll),
     yield takeEvery(walletTypes.DEPOSIT_REQUESTED, deposit),
+    yield takeEvery(walletTypes.EXCHANGE_REQUESTED, exchange),
   ])
 }
