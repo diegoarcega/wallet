@@ -1,5 +1,7 @@
 // import { api } from './api'
-const wait = (data, time) => new Promise((resolve) => setTimeout(resolve(data), 10000))
+export const wait = (data, time) => new Promise((resolve) => {
+  setTimeout(() => resolve(data), time)
+})
 
 export const getAll = () => {
   const data = [{
@@ -16,9 +18,9 @@ export const getAll = () => {
     color: 'green'
   }]
 
-  return wait(data, 10000)
+  return wait(data, 1000)
 }
 
 export const deposit = ({ currency, amount }) => {
-  return wait({ currency, amount }, 10000)
+  return wait({ currency, amount }, 1000)
 }

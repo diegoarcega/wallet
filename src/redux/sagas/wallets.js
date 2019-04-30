@@ -8,8 +8,9 @@ function* getAll() {
 }
 
 function* deposit(action) {
-  const { amount, currency } = action.payload
+  const { amount, currency, callback } = action.payload
   const response = yield call(WalletsApi.deposit, { amount, currency })
+  callback()
   yield put({ type: walletTypes.DEPOSIT_SUCCESS, payload: response })
 }
 
