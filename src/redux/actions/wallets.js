@@ -9,7 +9,7 @@ export const deposit = ({ amount, currency }, callback) => ({
   payload: { amount, currency, callback },
 })
 
-export const exchange = ({ amount, currencyFrom, currencyTo }, callback) => ({
+export const exchange = ({ amount, currencyFrom, currencyTo, amountInDestination }, callback) => ({
   type: walletTypes.EXCHANGE_REQUESTED,
-  payload: { amount, currencyFrom, currencyTo, callback },
+  payload: { amount, currencyFrom, currencyTo, amountInDestination, callback },
 })

@@ -15,9 +15,8 @@ function* deposit(action) {
 }
 
 function* exchange(action) {
-  const { amount, currencyFrom, currencyTo, callback } = action.payload
-  const response = yield call(WalletsApi.exchange, { currencyFrom, currencyTo, amount })
-  console.log({ response })
+  const { amount, currencyFrom, currencyTo, callback, amountInDestination } = action.payload
+  const response = yield call(WalletsApi.exchange, { currencyFrom, currencyTo, amount, amountInDestination })
   callback && callback()
   yield put({ type: walletTypes.EXCHANGE_SUCCESS, payload: response })
 }

@@ -1,17 +1,13 @@
-import { api } from './api'
-
-export const wait = (data, time) => new Promise((resolve) => {
-  setTimeout(() => resolve(data), time)
-})
+import { api, mockedRequest } from './api'
 
 export const getAll = () => {
   const data = [{
     currency: 'USD',
-    amount: 100,
+    amount: 10,
     color: 'yellow',
   }, {
     currency: 'GBP',
-    amount: 1,
+    amount: 10,
     color: 'blue'
   }, {
     currency: 'BRL',
@@ -19,19 +15,25 @@ export const getAll = () => {
     color: 'green'
   }]
 
-  return wait(data, 1000)
+  return mockedRequest(data, 1000)
 }
 
 export const deposit = ({ currency, amount }) => {
-  return wait({ currency, amount }, 1000)
+  return mockedRequest({ currency, amount }, 1000)
 }
 
-export const exchange = async ({ currencyFrom, currencyTo, amount }) => {
+export const exchange = async ({ currencyFrom, currencyTo, amount, amountInDestination }) => {
   const response = await api.get(`/latest?base=${currencyFrom}`)
+  const amountTo = calculateAmountTo(amount, response.data.rates[currencyTo], amountInDestination)
+
   return {
     currencyFrom,
     currencyTo,
     amount,
-    amountTo: (amount * response.data.rates[currencyTo]).toFixed(2),
+    amountTo,
+  }
+
+  function calculateAmountTo(amount, currencyRate, amountInDestination) {
+    return parseFloat(((amount * currencyRate) + amountInDestination).toFixed(2))
   }
 }
