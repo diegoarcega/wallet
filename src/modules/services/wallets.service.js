@@ -1,7 +1,16 @@
 import { api, mockedRequest } from './api'
+import { formatCurrency } from '../../utils'
+
+function calculateAmountTo(amount, currencyRate, amountInDestination) {
+  return parseFloat(((amount * currencyRate) + amountInDestination).toFixed(2))
+}
 
 export const getAll = () => {
   const data = [{
+    currency: 'CAD',
+    amount: 10,
+    color: 'red',
+  }, {
     currency: 'USD',
     amount: 10,
     color: 'yellow',
@@ -11,7 +20,7 @@ export const getAll = () => {
     color: 'blue'
   }, {
     currency: 'BRL',
-    amount: 0,
+    amount: 10,
     color: 'green'
   }]
 
@@ -32,8 +41,24 @@ export const exchange = async ({ currencyFrom, currencyTo, amount, amountInDesti
     amount,
     amountTo,
   }
+}
 
-  function calculateAmountTo(amount, currencyRate, amountInDestination) {
-    return parseFloat(((amount * currencyRate) + amountInDestination).toFixed(2))
+export const calculateTotal = async ({ defaultCurrency, wallets }) => {
+  const defaultWallet = wallets.find(wallet => wallet.currency === defaultCurrency)
+  const walletsWithoutDefault = wallets.filter(wallet => wallet.currency !== defaultCurrency)
+  let walletsWithRates = []
+
+  for (const wallet of walletsWithoutDefault) {
+    const response = await api.get(`/latest?base=${wallet.currency}`)
+    walletsWithRates = [...walletsWithRates, { ...wallet, rate: response.data.rates[defaultCurrency] }  ]
+  }
+
+  const total = walletsWithRates
+    .reduce((accumulator, item) => {
+      return calculateAmountTo(item.amount, item.rate, accumulator)
+  }, defaultWallet.amount)
+
+  return {
+    total,
   }
 }

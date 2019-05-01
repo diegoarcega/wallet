@@ -1,16 +1,18 @@
 import { takeEvery, call, put, all } from 'redux-saga/effects'
 import * as UserApi from '../../modules/services/user.service'
-import { userTypes } from '../types'
+import { userTypes, walletTypes } from '../types'
 
 function* getUserData() {
   const response = yield call(UserApi.getUserData)
   yield put({ type: userTypes.GET_USER_DATA_SUCCESS, payload: response })
+  yield put({ type: walletTypes.GET_ALL_REQUESTED })
 }
 
 function* setDefaultCurrency(action) {
   const { currency } = action.payload
   const response = yield call(UserApi.setDefaultCurrency, { currency })
   yield put({ type: userTypes.SET_DEFAULT_CURRENCY_SUCCESS, payload: response })
+  yield put({ type: walletTypes.CALCULATE_TOTAL_REQUESTED })
 }
 
 

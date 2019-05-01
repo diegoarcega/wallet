@@ -1,45 +1,23 @@
 import React from 'react'
-import styled from 'styled-components'
 import { connect } from 'react-redux'
+import * as formatCurrency from 'format-currency'
+import { SegmentStyled, Amount, LoaderStyles, TotalStyles } from './app.styles'
 import * as walletsActions from './redux/actions/wallets'
 import * as userActions from './redux/actions/user'
+import { getWallets } from './redux/selectors/wallets'
+import { getDefaultCurrency } from './redux/selectors/user'
+import { DepositModal } from './components/deposit-modal'
+import { ExchangeModal } from './components/exchange-modal'
+import { getCurrencyDetails, getExchangeOptions } from './utils'
 import {
   Grid,
-  Segment,
   Header,
   Divider,
   Button,
-  Modal,
-  Input,
   Loader,
   Dropdown,
   Menu,
-  Form,
-  Label,
 } from 'semantic-ui-react'
-
-const SegmentStyled = styled(Segment)`
-  && { background: #e1fffd; }
-`
-
-const Amount = styled.span`
-  font-size: 15px;
-`
-
-function getCurrencyDetails(wallets, currency) {
-  return wallets.find(wallet => wallet.currency === currency)
-}
-
-function getExchangeOptions(wallets, disabledCurrency) {
-  return wallets.reduce((accumulator, item) => {
-    if (disabledCurrency === item.currency) return accumulator
-    return [...accumulator, {
-      key: item.currency,
-      text: item.currency,
-      value: item.currency,
-    }]
-  }, [])
-}
 
 const INITIAL_STATE = {
   isDepositModalOpen: false,
@@ -58,8 +36,7 @@ class App extends React.Component {
   state = INITIAL_STATE
 
   componentDidMount() {
-    const { getAllWallets, getUserData } = this.props
-    getAllWallets()
+    const { getUserData } = this.props
     getUserData()
   }
 
@@ -75,7 +52,6 @@ class App extends React.Component {
   }
   handleDeposit = () => {
     const { depositCurrency, depositAmount } = this.state
-
     this.props.deposit({
       amount: parseFloat(depositAmount),
       currency: depositCurrency,
@@ -118,7 +94,7 @@ class App extends React.Component {
   }
 
   render() {
-    const { wallets, isFetching, isDepositing, isUserFetching, defaultCurrency } = this.props
+    const { wallets, isFetching, isDepositing, isUserFetching, defaultCurrency, total } = this.props
     const {
       isDepositModalOpen,
       depositCurrency,
@@ -131,36 +107,37 @@ class App extends React.Component {
     } = this.state
 
     const isExchangeError = exchangeAmount > (getCurrencyDetails(wallets, exchangeCurrencyFrom) && getCurrencyDetails(wallets, exchangeCurrencyFrom).amount)
-
     return (
       <React.Fragment>
-        <Menu floated="right" compact stackable borderless inverted>
+        <Menu stackable inverted secondary floated="right">
           {isUserFetching ?
-            <Loader active inline size="small" style={{ float: 'right', marginRight: '60px' }} /> :
+            <Loader active inline="centered" size="small" style={LoaderStyles} /> :
             <Dropdown
               simple
               item
               floated="right"
-              text={`Default Currency: ${defaultCurrency}`}
+              text={`Default Currency:  ${defaultCurrency}`}
               options={getExchangeOptions(wallets, defaultCurrency)}
               onChange={this.handleSetDefaultCurrency}
           />}
         </Menu>
-        <Grid columns="equal" container>
+        <Divider hidden clearing />
+        <Grid>
           <Grid.Row>
             <Grid.Column>
-              <Divider />
-              {(!isFetching || !isUserFetching) && <Header as="h1" color="teal" textAlign="center">
-                <span style={{ fontSize: '45px', fontWeight: '100' }}>20.000.00</span> {defaultCurrency}
+              {(isUserFetching || isFetching) ? <Loader active inline="centered" /> : <Header as="h1" color="teal" textAlign="center">
+                <span style={TotalStyles}>{formatCurrency(total, { code: defaultCurrency })}</span> {defaultCurrency}
               </Header>}
             </Grid.Column>
           </Grid.Row>
+        </Grid>
+        <Grid stackable container stretched columns="3" doubling divided="vertically">
           <Grid.Row>
-            {isFetching ? <Loader active /> : wallets.map(currency => (
+            {isFetching ? <Loader active style={{ marginTop: '170px' }}/> : wallets.map(currency => (
               <Grid.Column key={currency.currency}>
                 <SegmentStyled raised color={currency.color}>
                   <Header as="h4" color={currency.color}>{currency.currency} Wallet</Header>
-                  <p><Amount>{currency.amount}</Amount> {currency.currency}</p>
+                  <p><Amount>{formatCurrency(currency.amount, { code: currency.currency })}</Amount> {currency.currency}</p>
                   <div>
                     <Button basic color="blue" onClick={this.openExchangeModal(currency.currency)}>Exchange</Button>
                     <Button basic color="green" onClick={this.openDepositModal(currency.currency)}>Deposit</Button>
@@ -170,79 +147,41 @@ class App extends React.Component {
             ))}
           </Grid.Row>
         </Grid>
-        <Modal
-          open={isDepositModalOpen}
+        <DepositModal
+          isOpen={isDepositModalOpen}
+          isLoading={isDepositing}
           onClose={this.closeModal}
-          size="mini"
-          dimmer="blurring"
-        >
-          <Modal.Header><Header textAlign="center" as="h1" color="green">Deposit {depositCurrency}</Header></Modal.Header>
-          <Modal.Content>
-            <Form.Field>
-              <Input
-                size="massive"
-                type="number"
-                placeholder="0"
-                value={depositAmount}
-                onChange={this.handleDepositMountChange}
-                autoFocus
-                fluid
-              />
-            </Form.Field>
-          </Modal.Content>
-          <Modal.Actions>
-            <Button basic disabled={isDepositing} onClick={this.closeModal}>Cancel</Button>
-            <Button color="green" disabled={isDepositing || !depositAmount} loading={isDepositing} onClick={this.handleDeposit}>Confirm</Button>
-          </Modal.Actions>
-        </Modal>
-        <Modal
-          open={isExchangeModalOpen}
+          currency={depositCurrency}
+          amount={depositAmount}
+          onAmountChange={this.handleDepositMountChange}
+          onSubmit={this.handleDeposit}
+        />
+        <ExchangeModal
           onClose={this.closeModal}
-          size="tiny"
-          dimmer="blurring"
-        >
-          <Modal.Header><Header textAlign="center" as="h1" color="green">Exchange {exchangeCurrencyFrom}</Header></Modal.Header>
-          <Modal.Content>
-            <p>Exchange your currency between wallets</p>
-            <Form.Field>
-                <Input
-                size="massive"
-                type="number"
-                placeholder="0"
-                value={exchangeAmount}
-                onChange={this.handleExchangeAmountChange}
-                autoFocus
-                error={isExchangeError}
-                labelPosition="right"
-                fluid
-                label={<Dropdown
-                  onChange={this.handleExchangeCurrencyToChange}
-                  options={getExchangeOptions(wallets, exchangeCurrencyFrom)}
-                  value={exchangeCurrencyTo}
-                  defaultValue={getExchangeOptions(wallets, exchangeCurrencyFrom)[0].value}
-                  selection
-                  compact
-                />}
-              />
-              {isExchangeError && <Label pointing color="red">You can't transfer more than you have in your {exchangeCurrencyFrom} wallet</Label>}
-            </Form.Field>
-          </Modal.Content>
-          <Modal.Actions>
-            <Button basic disabled={isExchanging} onClick={this.closeModal}>Cancel</Button>
-            <Button color="green" disabled={isExchanging || isExchangeError || !exchangeAmount} loading={isExchanging} onClick={this.handleExchange}>Confirm</Button>
-          </Modal.Actions>
-        </Modal>
+          isOpen={isExchangeModalOpen}
+          currencyFrom={exchangeCurrencyFrom}
+          amount={exchangeAmount}
+          onAmountChange={this.handleExchangeAmountChange}
+          isError={isExchangeError}
+          onCurrencyToChange={this.handleExchangeCurrencyToChange}
+          currencyOptions={getExchangeOptions(wallets, exchangeCurrencyFrom)}
+          currencyValue={exchangeCurrencyTo}
+          currencyDefaultValue={exchangeCurrencyFrom && getExchangeOptions(wallets, exchangeCurrencyFrom)[0].value}
+          isLoading={isExchanging}
+          onSubmit={this.handleExchange}
+        />
       </React.Fragment>)
   }
 }
 
 const mapStateToProps = state => ({
-  wallets: state.wallets.wallets,
+  wallets: getWallets(state),
   isFetching: state.wallets.isFetching,
   isDepositing: state.wallets.isDepositing,
   isError: state.wallets.isError,
+  total: state.wallets.total,
 
-  defaultCurrency: state.user.defaultCurrency,
+  defaultCurrency: getDefaultCurrency(state),
   isUserFetching: state.user.isFetching,
 })
 

@@ -13,3 +13,8 @@ export const exchange = ({ amount, currencyFrom, currencyTo, amountInDestination
   type: walletTypes.EXCHANGE_REQUESTED,
   payload: { amount, currencyFrom, currencyTo, amountInDestination, callback },
 })
+
+export const calculateTotal = ({ defaultCurrency, wallets }) => ({
+  type: walletTypes.CALCULATE_TOTAL_REQUESTED,
+  payload: { defaultCurrency, wallets },
+})

@@ -4,11 +4,8 @@ const INITIAL_STATE = {
   isDepositing: false,
   isFetching: false,
   isError: false,
-  wallets: [{
-    currency: 'USD',
-    amount: 0,
-    color: 'yellow',
-  }],
+  wallets: [],
+  total: null,
 }
 
 export default (state = INITIAL_STATE, action) => {
@@ -40,10 +37,11 @@ export default (state = INITIAL_STATE, action) => {
 
     // exchange
     case walletTypes.EXCHANGE_REQUESTED:
-      return { ...state }
+      return { ...state, isFetching: true }
     case walletTypes.EXCHANGE_SUCCESS:
       return {
         ...state,
+        isFetching: false,
         wallets: state.wallets.reduce((accumulator, item) => {
           if (item.currency === action.payload.currencyFrom) {
             item.amount -= action.payload.amount
@@ -54,6 +52,16 @@ export default (state = INITIAL_STATE, action) => {
           }
           return [...accumulator, item]
         }, [])
+      }
+
+    // total
+    case walletTypes.CALCULATE_TOTAL_REQUESTED:
+      return { ...state, isFetching: true }
+    case walletTypes.CALCULATE_TOTAL_SUCCESS:
+      return {
+        ...state,
+        isFetching: false,
+        total: action.payload.total,
       }
     default:
       return state
