@@ -13,7 +13,7 @@ import {
   Input,
   Loader,
   Dropdown,
-  Message,
+  Menu,
   Form,
   Label,
 } from 'semantic-ui-react'
@@ -110,8 +110,11 @@ class App extends React.Component {
     }, this.closeModal)
   }
   handleExchangeCurrencyToChange = (event, { value }) => {
-    console.log({ value })
     this.setState({ exchangeCurrencyTo: value })
+  }
+
+  handleSetDefaultCurrency = (event, { value }) => {
+    this.props.setDefaultCurrency({ currency: value})
   }
 
   render() {
@@ -131,13 +134,24 @@ class App extends React.Component {
 
     return (
       <React.Fragment>
+        <Menu floated="right" compact stackable borderless inverted>
+          {isUserFetching ?
+            <Loader active inline size="small" style={{ float: 'right', marginRight: '60px' }} /> :
+            <Dropdown
+              simple
+              item
+              floated="right"
+              text={`Default Currency: ${defaultCurrency}`}
+              options={getExchangeOptions(wallets, defaultCurrency)}
+              onChange={this.handleSetDefaultCurrency}
+          />}
+        </Menu>
         <Grid columns="equal" container>
           <Grid.Row>
             <Grid.Column>
               <Divider />
-              <Button basic inverted>Change default currency</Button>
-              {(isFetching || isUserFetching) ? <Loader active inline size="small" style={{ float: 'right', marginRight: '60px' }}/> : <Header as="h1" color="teal" floated="right">
-                20.000.00 {defaultCurrency}
+              {(!isFetching || !isUserFetching) && <Header as="h1" color="teal" textAlign="center">
+                <span style={{ fontSize: '45px', fontWeight: '100' }}>20.000.00</span> {defaultCurrency}
               </Header>}
             </Grid.Column>
           </Grid.Row>
@@ -154,11 +168,6 @@ class App extends React.Component {
                 </SegmentStyled>
               </Grid.Column>
             ))}
-          </Grid.Row>
-          <Grid.Row>
-            <Grid.Column>
-              footer
-            </Grid.Column>
           </Grid.Row>
         </Grid>
         <Modal
@@ -243,6 +252,7 @@ const mapDispatchToProps = {
   exchange: walletsActions.exchange,
 
   getUserData: userActions.getUserData,
+  setDefaultCurrency: userActions.setDefaultCurrency,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)

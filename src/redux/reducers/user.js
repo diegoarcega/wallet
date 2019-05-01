@@ -11,7 +11,7 @@ export default (state = INITIAL_STATE, action) => {
     case userTypes.SET_DEFAULT_CURRENCY_REQUESTED:
       return { ...state, isFetching: true, isError: false }
     case userTypes.SET_DEFAULT_CURRENCY_SUCCESS:
-      return { ...state, isFetching: false, isError: false, defaultCurrency: action.payload.currency }
+      return { ...state, isFetching: false, isError: false, defaultCurrency: action.payload.defaultCurrency }
     default:
       return state
   }

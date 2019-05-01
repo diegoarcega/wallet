@@ -10,7 +10,6 @@ function* getUserData() {
 function* setDefaultCurrency(action) {
   const { currency } = action.payload
   const response = yield call(UserApi.setDefaultCurrency, { currency })
-  console.log({ response })
   yield put({ type: userTypes.SET_DEFAULT_CURRENCY_SUCCESS, payload: response })
 }
 
