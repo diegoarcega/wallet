@@ -5,7 +5,6 @@ import { userTypes, walletTypes } from '../types'
 function* getUserData() {
   const response = yield call(UserApi.getUserData)
   yield put({ type: userTypes.GET_USER_DATA_SUCCESS, payload: response })
-  yield put({ type: walletTypes.GET_ALL_REQUESTED })
 }
 
 function* setDefaultCurrency(action) {

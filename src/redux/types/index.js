@@ -1,3 +1,7 @@
+export const appTypes = {
+  BOOT: '@app/BOOT',
+}
+
 export const userTypes = {
   GET_USER_DATA_REQUESTED: '@user/GET_USER_DATA_REQUESTED',
   GET_USER_DATA_SUCCESS: '@user/GET_USER_DATA_SUCCESS',

@@ -1,5 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
+import { getWallets } from '../../redux/selectors/wallets'
+import * as walletsActions from '../../redux/actions/wallets'
+import { getCurrencyDetails, getExchangeOptions } from '../../utils'
 import {
   Header,
   Button,
@@ -12,27 +16,45 @@ import {
 
 const ExchangeModal = props => {
   const {
-    amount,
     isOpen,
-    isLoading,
-    isError,
-    onClose,
-    onAmountChange,
-    onSubmit,
-    onCurrencyToChange,
+    isProcessing,
     currencyFrom,
-    currencyOptions,
-    currencyValue,
-    currencyDefaultValue
+    onClose,
+    wallets,
+    exchange,
   } = props
 
+  const [amount, setAmount] = useState('')
+  const [currencyTo, setCurrencyTo] = useState()
+
+  const handleAmountChange = (event, { value }) => {
+    setAmount(parseFloat(value))
+  }
+
+  const handleCurrencyToChange = (event, { value }) => {
+    setCurrencyTo(value)
+  }
+
+  const handleSubmitSuccess = () => {
+    onClose()
+    setAmount()
+  }
+
+  const handleSubmit = () => {
+    const currencyToValue = currencyTo || getExchangeOptions(wallets, currencyFrom)[0].value
+
+    exchange({
+      amount: parseFloat(amount),
+      currencyFrom,
+      currencyTo: currencyToValue,
+      amountInDestination: getCurrencyDetails(wallets, currencyToValue).amount
+    }, handleSubmitSuccess)
+  }
+
+  const isError = amount > (getCurrencyDetails(wallets, currencyFrom) && getCurrencyDetails(wallets, currencyFrom).amount)
+
   return (
-    <Modal
-      open={isOpen}
-      onClose={onClose}
-      size="tiny"
-      dimmer="blurring"
-    >
+    <Modal open={isOpen} onClose={onClose} size="tiny" dimmer="blurring">
       <Modal.Header>
         <Header textAlign="center" as="h1" color="green">
           Exchange {currencyFrom}
@@ -46,16 +68,16 @@ const ExchangeModal = props => {
             type="number"
             placeholder="0"
             value={amount}
-            onChange={onAmountChange}
+            onChange={handleAmountChange}
             autoFocus
             error={isError}
             labelPosition="right"
             fluid
             label={<Dropdown
-              onChange={onCurrencyToChange}
-              options={currencyOptions}
-              value={currencyValue}
-              defaultValue={currencyDefaultValue}
+              onChange={handleCurrencyToChange}
+              options={getExchangeOptions(wallets, currencyFrom)}
+              value={currencyTo}
+              defaultValue={currencyFrom && getExchangeOptions(wallets, currencyFrom)[0].value}
               selection
               compact
             />}
@@ -66,12 +88,12 @@ const ExchangeModal = props => {
         </Form.Field>
       </Modal.Content>
       <Modal.Actions>
-        <Button basic disabled={isLoading} onClick={onClose}>Cancel</Button>
+        <Button basic disabled={isProcessing} onClick={onClose}>Cancel</Button>
         <Button
           color="green"
-          disabled={isLoading || isError || !amount}
-          loading={isLoading}
-          onClick={onSubmit}>
+          disabled={isProcessing || isError || !amount}
+          loading={isProcessing}
+          onClick={handleSubmit}>
           Confirm
         </Button>
       </Modal.Actions>
@@ -80,22 +102,19 @@ const ExchangeModal = props => {
 }
 
 ExchangeModal.propTypes = {
-  amount: PropTypes.number.isRequired,
   isOpen: PropTypes.bool.isRequired,
-  isLoading: PropTypes.bool.isRequired,
-  isError: PropTypes.bool.isRequired,
+  isProcessing: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  onAmountChange: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired,
-  onCurrencyToChange: PropTypes.func.isRequired,
   currencyFrom: PropTypes.string,
-  currencyOptions: PropTypes.arrayOf(PropTypes.shape({
-    key: PropTypes.string.isRequired,
-    text: PropTypes.string.isRequired,
-    value: PropTypes.string.isRequired,
-  })),
-  currencyValue: PropTypes.string,
-  currencyDefaultValue: PropTypes.string
 }
 
-export default ExchangeModal
+const mapStateToProps = state => ({
+  wallets: getWallets(state),
+  isProcessing: state.wallets.isProcessing,
+})
+
+const mapDispatchToProps = {
+  exchange: walletsActions.exchange,
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ExchangeModal)
