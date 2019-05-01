@@ -1,5 +1,4 @@
 import { api, mockedRequest } from './api'
-import { formatCurrency } from '../../utils'
 
 function calculateAmountTo(amount, currencyRate, amountInDestination) {
   return parseFloat(((amount * currencyRate) + amountInDestination).toFixed(2))
