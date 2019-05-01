@@ -1,34 +1,30 @@
 import { api, mockedRequest } from './api'
 
-function calculateAmountTo(amount, currencyRate, amountInDestination) {
+export function calculateAmountTo(amount, currencyRate, amountInDestination) {
   return parseFloat(((amount * currencyRate) + amountInDestination).toFixed(2))
 }
 
-export const getAll = () => {
-  const data = [{
-    currency: 'CAD',
-    amount: 10,
-    color: 'red',
-  }, {
-    currency: 'USD',
-    amount: 10,
-    color: 'yellow',
-  }, {
-    currency: 'GBP',
-    amount: 10,
-    color: 'blue'
-  }, {
-    currency: 'BRL',
-    amount: 10,
-    color: 'green'
-  }]
+export const walletsMockData = [{
+  currency: 'CAD',
+  amount: 10,
+  color: 'red',
+}, {
+  currency: 'USD',
+  amount: 10,
+  color: 'yellow',
+}, {
+  currency: 'GBP',
+  amount: 10,
+  color: 'blue'
+}, {
+  currency: 'BRL',
+  amount: 10,
+  color: 'green'
+}]
 
-  return mockedRequest(data, 1000)
-}
+export const getAll = () =>  mockedRequest(walletsMockData, 1000)
 
-export const deposit = ({ currency, amount }) => {
-  return mockedRequest({ currency, amount }, 1000)
-}
+export const deposit = ({ currency, amount }) => mockedRequest({ currency, amount }, 1000)
 
 export const exchange = async ({ currencyFrom, currencyTo, amount, amountInDestination }) => {
   const response = await api.get(`/latest?base=${currencyFrom}`)
