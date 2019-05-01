@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import * as formatCurrency from 'format-currency'
 import { SegmentStyled, Amount, LoaderStyles, TotalStyles } from './app.styles'
@@ -34,6 +35,26 @@ const INITIAL_STATE = {
 }
 class App extends React.Component {
   state = INITIAL_STATE
+  static propTypes = {
+    wallets: PropTypes.arrayOf(PropTypes.shape({
+      currency: PropTypes.string,
+      amount: PropTypes.number,
+      color: PropTypes.string,
+    })),
+    isFetching: PropTypes.bool.isRequired,
+    isDepositing: PropTypes.bool.isRequired,
+    isError: PropTypes.bool.isRequired,
+    total: PropTypes.number,
+
+    defaultCurrency: PropTypes.string,
+    isUserFetching: PropTypes.bool.isRequired,
+
+    deposit: PropTypes.func.isRequired,
+    exchange: PropTypes.func.isRequired,
+
+    getUserData: PropTypes.func.isRequired,
+    setDefaultCurrency: PropTypes.func.isRequired,
+  }
 
   componentDidMount() {
     const { getUserData } = this.props
@@ -186,7 +207,6 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = {
-  getAllWallets: walletsActions.getAll,
   deposit: walletsActions.deposit,
   exchange: walletsActions.exchange,
 

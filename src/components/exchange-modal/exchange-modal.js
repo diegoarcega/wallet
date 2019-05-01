@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {
   Header,
   Button,
@@ -9,7 +10,7 @@ import {
   Label,
 } from 'semantic-ui-react'
 
-export default (props) => {
+const ExchangeModal = props => {
   const {
     amount,
     isOpen,
@@ -77,3 +78,24 @@ export default (props) => {
     </Modal>
   )
 }
+
+ExchangeModal.propTypes = {
+  amount: PropTypes.number.isRequired,
+  isOpen: PropTypes.bool.isRequired,
+  isLoading: PropTypes.bool.isRequired,
+  isError: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onAmountChange: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  onCurrencyToChange: PropTypes.func.isRequired,
+  currencyFrom: PropTypes.string,
+  currencyOptions: PropTypes.arrayOf(PropTypes.shape({
+    key: PropTypes.string.isRequired,
+    text: PropTypes.string.isRequired,
+    value: PropTypes.string.isRequired,
+  })),
+  currencyValue: PropTypes.string,
+  currencyDefaultValue: PropTypes.string
+}
+
+export default ExchangeModal

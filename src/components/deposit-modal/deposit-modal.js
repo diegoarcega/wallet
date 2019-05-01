@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {
   Header,
   Button,
@@ -7,7 +8,7 @@ import {
   Form,
 } from 'semantic-ui-react'
 
-export default ({
+const DepositModal = ({
   isOpen,
   currency,
   amount,
@@ -46,3 +47,15 @@ export default ({
     </Modal.Actions>
   </Modal>)
 }
+
+DepositModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  currency: PropTypes.string.isRequired,
+  amount: PropTypes.number.isRequired,
+  isLoading: PropTypes.bool.isRequired,
+  onAmountChange: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+}
+
+export default DepositModal
