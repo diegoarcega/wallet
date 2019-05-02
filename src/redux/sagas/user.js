@@ -2,16 +2,24 @@ import { takeEvery, call, put, all } from 'redux-saga/effects'
 import * as UserApi from '../../modules/services/user.service'
 import { userTypes, walletTypes } from '../types'
 
-function* getUserData() {
-  const response = yield call(UserApi.getUserData)
-  yield put({ type: userTypes.GET_USER_DATA_SUCCESS, payload: response })
+export function* getUserData() {
+  try {
+    const response = yield call(UserApi.getUserData)
+    yield put({ type: userTypes.GET_USER_DATA_SUCCESS, payload: response })
+  } catch (error) {
+    yield put({ type: userTypes.GET_USER_DATA_FAILURE, payload: error })
+  }
 }
 
-function* setDefaultCurrency(action) {
-  const { currency } = action.payload
-  const response = yield call(UserApi.setDefaultCurrency, { currency })
-  yield put({ type: userTypes.SET_DEFAULT_CURRENCY_SUCCESS, payload: response })
-  yield put({ type: walletTypes.CALCULATE_TOTAL_REQUESTED })
+export function* setDefaultCurrency(action) {
+  try {
+    const { currency } = action.payload
+    const response = yield call(UserApi.setDefaultCurrency, { currency })
+    yield put({ type: userTypes.SET_DEFAULT_CURRENCY_SUCCESS, payload: response })
+    yield put({ type: walletTypes.CALCULATE_TOTAL_REQUESTED })
+  } catch (error) {
+    yield put({ type: userTypes.SET_DEFAULT_CURRENCY_FAILURE, payload: error })
+  }
 }
 
 

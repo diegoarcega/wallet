@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { getWallets } from '../../redux/selectors/wallets'
@@ -15,17 +15,15 @@ import {
 } from 'semantic-ui-react'
 
 const ExchangeModal = props => {
-  const {
-    isOpen,
-    isProcessing,
-    currencyFrom,
-    onClose,
-    wallets,
-    exchange,
-  } = props
+  const { isOpen, isProcessing, currencyFrom, onClose, wallets, exchange } = props
 
+  const initialCurrencyTo = getExchangeOptions(wallets, currencyFrom).length && getExchangeOptions(wallets, currencyFrom)[0].value
+  const [currencyTo, setCurrencyTo] = useState(initialCurrencyTo)
   const [amount, setAmount] = useState('')
-  const [currencyTo, setCurrencyTo] = useState()
+
+  useEffect(() => {
+    setCurrencyTo(initialCurrencyTo)
+  }, [wallets, currencyFrom, initialCurrencyTo])
 
   const handleAmountChange = (event, { value }) => {
     setAmount(parseFloat(value))
@@ -77,7 +75,6 @@ const ExchangeModal = props => {
               onChange={handleCurrencyToChange}
               options={getExchangeOptions(wallets, currencyFrom)}
               value={currencyTo}
-              defaultValue={currencyFrom && getExchangeOptions(wallets, currencyFrom)[0].value}
               selection
               compact
             />}
