@@ -1,6 +1,8 @@
 # Fiat Wallet
 Wallet of Fiat currencies. Exchange and store your currencies in one platform.
 
+![Wallet](./docs/savvy-wallet.gif)
+
 ## Description of chosen libs
 
 * *create-react-app*: It has everything a developer might need in a medium to large project, possibility

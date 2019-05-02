@@ -10,7 +10,7 @@ import { getDefaultCurrency } from './redux/selectors/user'
 import { DepositModal } from './components/deposit-modal'
 import { ExchangeModal } from './components/exchange-modal'
 import { getExchangeOptions } from './utils'
-import { Grid, Header, Divider, Button, Loader, Dropdown, Menu } from 'semantic-ui-react'
+import { Grid, Header, Divider, Button, Loader, Dropdown, Menu, Image } from 'semantic-ui-react'
 
 const INITIAL_STATE = {
   isDepositModalOpen: false,
@@ -78,6 +78,18 @@ class App extends Component {
           />}
         </Menu>
         <Divider hidden clearing />
+        <Grid>
+          <Grid.Row>
+            <Grid.Column>
+              <Image
+                src="http://en.bellebeirut.com/wp-content/uploads/2012/02/happy-woman.jpg"
+                circular
+                centered
+                size='small'
+              />
+            </Grid.Column>
+          </Grid.Row>
+        </Grid>
         <Grid>
           <Grid.Row>
             <Grid.Column>
